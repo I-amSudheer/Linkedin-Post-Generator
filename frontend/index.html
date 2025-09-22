@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Post Generator</title>
+</head>
+<body>
+  <h1>LinkedIn Post Generator</h1>
+
+  <input type="text" id="topic" placeholder="Enter your topic" />
+  <button onclick="generatePost()">Generate Post</button>
+
+  <h3>Generated Post:</h3>
+  <div id="result"></div>
+
+  <script>
+    async function generatePost() {
+      const topic = document.getElementById("topic").value;
+
+      if (!topic) {
+        document.getElementById("result").innerText = "Please enter a topic!";
+        return;
+      }
+
+      const response = await fetch("http://127.0.0.1:8000/generatePost/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ topic }),
+      });
+
+      const data = await response.json();
+
+      if (data.post) {
+        document.getElementById("result").innerText = data.post;
+      } else if (data.error) {
+        document.getElementById("result").innerText = "Error: " + data.error;
+      } else {
+        document.getElementById("result").innerText = "Unknown error occurred";
+      }
+    }
+  </script>
+</body>
+</html>
