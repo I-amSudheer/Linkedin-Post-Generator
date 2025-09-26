@@ -4,41 +4,143 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LinkedIn Post Generator</title>
+  <style>
+    /* --- Basic Page Reset & Font --- */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f0f2f5; /* A light grey background */
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* --- Main Container --- */
+    .container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    /* --- Headings --- */
+    h1 {
+      color: #0a66c2; /* LinkedIn blue */
+      margin-top: 0;
+      margin-bottom: 24px;
+    }
+
+    h3 {
+      color: #555;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+
+    /* --- Input Field --- */
+    #topic {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box; /* Ensures padding doesn't affect overall width */
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    #topic:focus {
+      outline: none;
+      border-color: #0a66c2;
+      box-shadow: 0 0 5px rgba(10, 102, 194, 0.3);
+    }
+
+    /* --- Button --- */
+    button {
+      width: 100%;
+      padding: 12px 15px;
+      background-color: #0a66c2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #004182; /* A darker blue for hover effect */
+    }
+
+    /* --- Result Display Area --- */
+    #result {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 10px;
+      min-height: 120px;
+      text-align: left;
+      white-space: pre-wrap; /* Preserves line breaks and spaces from the output */
+      line-height: 1.6;
+      color: #444;
+    }
+  </style>
 </head>
 <body>
-  <h1>LinkedIn Post Generator</h1>
 
-  <input type="text" id="topic" placeholder="Enter your topic" />
-  <button onclick="generatePost()">Generate Post</button>
+  <div class="container">
+    <h1>LinkedIn Post Generator</h1>
 
-  <h3>Generated Post:</h3>
-  <div id="result"></div>
+    <input type="text" id="topic" placeholder="Enter your topic (e.g., 'the future of AI')" />
+    <button onclick="generatePost()">Generate Post</button>
+
+    <h3>Generated Post:</h3>
+    <div id="result"></div>
+  </div>
 
   <script>
     async function generatePost() {
       const topic = document.getElementById("topic").value;
+      const resultDiv = document.getElementById("result");
 
       if (!topic) {
-        document.getElementById("result").innerText = "Please enter a topic!";
+        resultDiv.innerText = "Please enter a topic!";
         return;
       }
 
-      const response = await fetch("https://linkedin-post-generator-4u9e.onrender.com/generatePost/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ topic }),
-      });
+      resultDiv.innerText = "Generating post, please wait...";
 
-      const data = await response.json();
+      try {
+        const response = await fetch("https://linkedin-post-generator-4u9e.onrender.com/generatePost/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ topic }),
+        });
 
-      if (data.post) {
-        document.getElementById("result").innerText = data.post;
-      } else if (data.error) {
-        document.getElementById("result").innerText = "Error: " + data.error;
-      } else {
-        document.getElementById("result").innerText = "Unknown error occurred";
+        const data = await response.json();
+
+        if (response.ok && data.post) {
+          resultDiv.innerText = data.post;
+        } else if (data.error) {
+          resultDiv.innerText = "Error: " + data.error;
+        } else {
+          resultDiv.innerText = "An unknown error occurred. The server may be busy.";
+        }
+      } catch (error) {
+        resultDiv.innerText = "Failed to connect to the server. Please check your connection.";
       }
     }
   </script>
